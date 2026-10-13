@@ -1,0 +1,12 @@
+[Unit]
+Description=Post-repart: configure bootloader for GPT auto-discovery
+Requires=systemd-repart.service
+After=systemd-repart.service
+ConditionKernelCommandLine=root
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/post-repart.sh
+
+[Install]
+WantedBy=multi-user.target

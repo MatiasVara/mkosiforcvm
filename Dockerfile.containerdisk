@@ -1,0 +1,3 @@
+# ContainerDisk for KubeVirt: minimal OCI image carrying the CVM disk.
+FROM scratch
+ADD cvm-image.qcow2 /disk/
