@@ -22,7 +22,7 @@
 #   ./build.sh
 #
 # Output:
-#   - cvm-selfencrypt.raw   (GPT disk image)
+#   - fedora-rawhide-cvm.raw (GPT disk image)
 #   - cvm-image.qcow2       (converted for VM use)
 #   - Container image (for KubeVirt containerDisk)
 
@@ -42,8 +42,8 @@ echo ""
 echo "=== mkosi build complete ==="
 
 # ── 2. Fix ownership (mkosi runs as root) ──
-RAW_IMAGE="$SCRIPT_DIR/cvm-selfencrypt.raw"
-sudo chown "$(id -u):$(id -g)" "$SCRIPT_DIR"/cvm-selfencrypt.* "$SCRIPT_DIR"/cvm-image.qcow2 2>/dev/null || true
+RAW_IMAGE="$SCRIPT_DIR/fedora-rawhide-cvm.raw"
+sudo chown "$(id -u):$(id -g)" "$SCRIPT_DIR"/fedora-rawhide-cvm.* "$SCRIPT_DIR"/cvm-image.qcow2 2>/dev/null || true
 
 if [ ! -f "$RAW_IMAGE" ]; then
     echo "ERROR: $RAW_IMAGE not found. mkosi build may have failed."
@@ -81,7 +81,7 @@ KVER=$(sudo ls "$MNT/lib/modules/" | head -1)
 echo "  Kernel version: $KVER"
 
 # Find the existing initrd path (mkosi puts it at ImageId/initrd, not ImageId/kver/initrd)
-MKOSI_INITRD="$MNT/boot/cvm-selfencrypt/initrd"
+MKOSI_INITRD="$MNT/boot/fedora-rawhide-cvm/initrd"
 if sudo test -f "$MKOSI_INITRD"; then
     INITRD_PATH="$MKOSI_INITRD"
 else
