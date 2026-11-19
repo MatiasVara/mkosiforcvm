@@ -29,6 +29,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# ./build.sh uki builds the UKI image.
+if [ "${1:-}" = "uki" ]; then
+    shift
+    exec "$SCRIPT_DIR/variants/uki/build.sh" "$@"
+fi
 REGISTRY="quay.io"
 IMAGE_REPO="mvaralar/cvm-selfencrypt"
 IMAGE_TAG="latest"

@@ -1,0 +1,22 @@
+# Development signing material. Never commit the private key.
+/addon.key
+/addon.crt
+/addon.cer
+
+# Exact outputs produced by variants/uki/build.sh.
+/fedora-rawhide-cvm-uki.raw
+/fedora-rawhide-cvm-uki.efi
+/fedora-rawhide-cvm-uki.roothash
+/fedora-45-cvm-uki.raw
+/fedora-45-cvm-uki.efi
+/fedora-45-cvm-uki.roothash
+/fedora-44-cvm-uki.raw
+/fedora-44-cvm-uki.efi
+/fedora-44-cvm-uki.roothash
+/10-runtime.addon.efi
+/20-usrhash.addon.efi
+/cvm-uki-image.qcow2
+/artifacts/
+
+# Copies injected from the top-level custom-binary input during a build.
+/addon/mkosi.extra/usr/bin/systemd-repart
