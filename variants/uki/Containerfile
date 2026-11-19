@@ -1,0 +1,2 @@
+FROM scratch
+ADD cvm-uki-image.qcow2 /disk/disk.qcow2

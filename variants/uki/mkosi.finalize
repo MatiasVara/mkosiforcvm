@@ -1,0 +1,67 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# mkosi runs this script after its normal SELinux relabel step. Because this
+# script rearranges the filesystem afterward, it relabels the final root
+# payload again before mkosi creates the disk image.
+
+root="${BUILDROOT:?mkosi did not set BUILDROOT}"
+
+setfiles="$(command -v setfiles)"
+[[ -x "$setfiles" ]] || {
+    echo "Required SELinux relabeling tool is missing: setfiles" >&2
+    exit 1
+}
+
+# Apply the target image's SELinux policy to a directory tree.
+# Arguments:
+#   $1: directory tree to relabel and treat as filesystem root
+#   $2: SELinux policy directory inside that tree
+#   $3: description used in status and error messages
+relabel_tree() {
+    local tree="$1"
+    local policy_root="$2"
+    local description="$3"
+    local file_contexts="$policy_root/contexts/files/file_contexts"
+    local binary_policy
+
+    binary_policy="$(
+        find "$policy_root/policy" -maxdepth 1 -type f -name 'policy.*' \
+            -print | sort -V | tail -n 1
+    )"
+
+    [[ -f "$file_contexts" && -n "$binary_policy" ]] || {
+        echo "Target SELinux policy is incomplete while relabeling $description" >&2
+        exit 1
+    }
+
+    echo "Relabeling $description with the target SELinux policy"
+    "$setfiles" \
+        -mFr "$tree" \
+        -T0 \
+        -c "$binary_policy" \
+        "$file_contexts" \
+        "$tree"
+}
+
+# Store the initial writable-root contents under the verified /usr partition.
+# On first boot, systemd-repart copies this directory into the new encrypted
+# root. /usr itself remains verified and read-only.
+mkdir -p "$root/usr/root-copy/boot/efi"
+# Move the normal root directories and compatibility symlinks, but not /usr.
+for entry in \
+    afs bin dev etc home lib lib64 media mnt opt proc root run srv sbin sys tmp var
+do
+    if [[ -e "$root/$entry" || -L "$root/$entry" ]]; then
+        mv "$root/$entry" "$root/usr/root-copy/"
+    fi
+done
+
+# The encrypted root is populated from this directory on first boot. Relabel
+# it using /usr/root-copy as the policy root so its contents receive the labels
+# for their eventual paths (/etc, /var, /root, and so on).
+relabel_tree \
+    "$root/usr/root-copy" \
+    "$root/usr/root-copy/etc/selinux/targeted" \
+    "first-boot root payload"
